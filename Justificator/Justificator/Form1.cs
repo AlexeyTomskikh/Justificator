@@ -20,24 +20,47 @@ namespace Justificator
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var text = textBox1.Text;
-            var lines = MakeStrings(100, text);
+            var sourceText = textBox1.Text;
 
-
-            var sb = new StringBuilder();
-
-            foreach (var item in lines)
+            int param = 100;
+            if (!string.IsNullOrEmpty(textBox3.Text))
             {
-                if (lines.IndexOf(item) != lines.Count - 1)
+                param = Convert.ToInt32(textBox3.Text);
+            }
+
+            List<string> nonAlignLines = new List<string>();
+            if (!checkBox1.Checked)
+            {
+                // формируем список параграфов
+                var paragraphList = MakeParagraph(param, sourceText);
+
+                // готовим список строк (не выровненный) на основе параграфов
+                nonAlignLines = new List<string>();
+                foreach (var item in paragraphList)
                 {
-                    var result = Justify(100, item);
-                    sb.AppendLine(result);
+                    var oneParagraf = MakeStrings(param, item, checkBox1.Checked);
+                    nonAlignLines.AddRange(oneParagraf);
+                }
+            }
+            else
+            {
+                nonAlignLines = MakeStrings(param, sourceText, checkBox1.Checked);
+            }
+            
+
+            // выравниваем каждую строку
+            var sb = new StringBuilder();
+            foreach (var line in nonAlignLines)
+            {
+                if (!line.EndsWith("\r\n"))
+                {
+                    var result1 = Justify(param, line);
+                    sb.AppendLine(result1);
                 }
                 else
                 {
-                    sb.AppendLine(item);
+                    sb.AppendLine(line);
                 }
-
             }
 
             textBox2.Text = sb.ToString();
@@ -65,7 +88,7 @@ namespace Justificator
 
             var leftOverSpace = length - totalWordLenght;
 
-            var wordCount = data.Count - 1;
+            var wordCount = data.Count;
             var spaceperWord = leftOverSpace / wordCount;
             var remainder = leftOverSpace % wordCount;
 
@@ -93,9 +116,26 @@ namespace Justificator
             return sb.ToString();
         }
 
-        public List<string> MakeStrings(int length, string sourcestext)
+        // Формирует список параграфов
+        public List<string> MakeParagraph(int length, string sourceText)
         {
-            var wordArray = sourcestext.Split(new[] { "\r\n", " " }, StringSplitOptions.RemoveEmptyEntries);
+            var list = sourceText.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            for(int i = 0; i < list.Length; i++)
+            {
+                list[i] = list[i] + "\r\n";
+            }
+
+            
+
+            return list.ToList();
+        }
+
+        public List<string> MakeStrings(int length, string sourcestext, bool withoutParagraph)
+        {
+            string[] splitOptions = withoutParagraph ? new[] { " ", "\r\n" } : new[] { " " };
+
+            var wordArray = sourcestext.Split(splitOptions, StringSplitOptions.RemoveEmptyEntries);
 
             var sb = new StringBuilder();
             var list = new List<string>();
@@ -140,6 +180,16 @@ namespace Justificator
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
         {
 
         }
