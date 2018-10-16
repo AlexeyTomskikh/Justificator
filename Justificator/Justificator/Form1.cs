@@ -88,19 +88,21 @@ namespace Justificator
 
             var leftOverSpace = length - totalWordLenght;
 
-            var wordCount = data.Count;
+            var wordCount = data.Count - 1 == 0? 1: data.Count - 1;
+
             var spaceperWord = leftOverSpace / wordCount;
             var remainder = leftOverSpace % wordCount;
 
             var sb = new StringBuilder();
-
-            foreach (var word in data)
+            // TO DO "шрифт бесполезен и может даже быть вредным. Тем не менее, Sans Forgetica может"
+            // разобраться с этим
+            for (int i = 0; i < data.Count - 1; i++)
             {
-                sb.Append(word);
+                sb.Append(data[i]);
 
-                if (word != data[data.Count - 1])
+                if (i != data.Count - 1 || data.Count == 1)
                 {
-                    for (int i = 0; i < spaceperWord; i++)
+                    for (int k = 0; k < spaceperWord; k++)
                     {
                         sb.Append(" ");
                     }
@@ -113,6 +115,10 @@ namespace Justificator
                 }
             }
 
+            if(sb.Length != length)
+            {
+                //throw new Exception($" Не работает выравнивание.Длина {sb.Length} ");
+            }
             return sb.ToString();
         }
 
